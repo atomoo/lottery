@@ -47,7 +47,7 @@ export class Lottery2D {
             if (cur < items.length - 2) {
                 setInterval(() => {
                     if (cur < items.length - 2) {
-                        items[cur].getObjects()[0].set({stroke: 'green'});
+                        (items[cur] as Group).getObjects()[0].set({stroke: 'green'});
                         this.fabric.renderAll();
                         cur++;
                     }

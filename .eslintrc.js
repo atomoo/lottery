@@ -34,6 +34,7 @@ module.exports = {
                 'exports': 'always-multiline',
                 'functions': 'never',
             },
-        ]
+        ],
+        'no-console': 'warn',
     },
 };

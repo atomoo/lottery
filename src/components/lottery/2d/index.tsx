@@ -17,7 +17,25 @@ export function Lottery2DView() {
             canvas.width = parent.clientWidth;
             canvas.height = parent.clientHeight;
             lottery.current = new Lottery2D(canvas);
-            lottery.current.renderItem();
+            lottery.current.setData([
+                {title: '1', tip: ''},
+                {title: '2', tip: ''},
+                {title: '3', tip: ''},
+                {title: '4', tip: ''},
+                {title: '5', tip: ''},
+                {title: '6', tip: ''},
+                {title: '7', tip: ''},
+                {title: '8', tip: ''},
+                {title: '9', tip: ''},
+                {title: '10', tip: ''},
+                {title: '11', tip: ''},
+                {title: '12', tip: ''},
+                {title: '13', tip: ''},
+                {title: '14', tip: ''},
+                {title: '15', tip: ''},
+                {title: '16', tip: ''},
+            ]);
+            lottery.current.renderData();
         },
         []
     );

@@ -51,12 +51,6 @@ export class Lottery2D {
             const items = g.getObjects();
             let cur = 0;
             this.timer = window.setInterval(() => {
-                if (cur === this.data.length * 10 + result) {
-                    window.clearInterval(this.timer);
-                    this.timer = 0;
-                    this.finish(result);
-                    return;
-                }
                 items.forEach(item => {
                     const rect = (item as Group).getObjects().find(child => child.type === 'rect');
                     rect?.set({stroke: 'gray', strokeWidth: 1});
@@ -71,6 +65,12 @@ export class Lottery2D {
                     }
                 }
                 this.fabric.renderAll();
+                if (cur === this.data.length * 10 + result ) {
+                    window.clearInterval(this.timer);
+                    this.timer = 0;
+                    this.finish(result);
+                    return;
+                }
                 cur += 1;
             }, 100);
         }

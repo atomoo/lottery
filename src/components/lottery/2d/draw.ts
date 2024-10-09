@@ -1,12 +1,13 @@
 'use client';
 
-import {Canvas, Group, Rect, FabricText} from 'fabric';
+import {Canvas, Group, Rect, FabricText, util, Point} from 'fabric';
 import {LotteryItem} from '../type';
 
 export class Lottery2D {
 
     data: LotteryItem[] = [];
     fabric: Canvas;
+    group: Group = new Group();
     layout = {
         col: 5,
         row: 5,
@@ -42,6 +43,30 @@ export class Lottery2D {
 
     finish(resultIndex: number) {
         console.log(this.data[resultIndex]);
+        console.log(this.fabric.getObjects()[0].left, this.fabric.getObjects()[0].top);
+        for (const item of this.group.getObjects()) {
+            const children = (item as Group).getObjects();
+            const text = children.find(child => child.type === 'text') as FabricText;
+            if (text.text === this.data[resultIndex].title) {
+                (item as Group).clone().then(g => {
+                    const {x, y} = this.fabric.getCenterPoint();
+                    console.log(item.getCenterPoint(),item.getX());
+                    const {x: itemX, y: itemY} = item.getCenterPoint();
+                    g.set({left: itemX, top: itemY, fill: 'red', selectable: false});
+                    g.scale(0.1);
+                    console.log(this.group.left,this.group.top, '||', g.getX(), g.getY(), '||', g.left, g.top);
+                    this.fabric.add(g);
+                    this.fabric.renderAll();
+                    setTimeout(() => {
+                        g.animate({left: x - g.width / 2, top: y - g.width / 2,scaleX: 1, scaleY: 1}, {onChange: this.fabric.renderAll.bind(this.fabric), duration: 1000});
+                    }, 0);
+                    g.on('mousedown', () => {
+                        this.fabric.remove(g);
+                    });
+                }).catch(err => console.log(err));
+                break;
+            }
+        }
     }
 
     start() {
@@ -53,19 +78,23 @@ export class Lottery2D {
             this.timer = window.setInterval(() => {
                 items.forEach(item => {
                     const rect = (item as Group).getObjects().find(child => child.type === 'rect');
-                    rect?.set({stroke: 'gray', strokeWidth: 1});
+                    rect?.set({fill: 'white'});
+                    const text = (item as Group).getObjects().find(child => child.type === 'text') as FabricText;
+                    text.set({fill: 'green'});
                 });
                 // FIXME: 优化
                 for (const item of items) {
+
                     const children = (item as Group).getObjects();
                     const text = children.find(child => child.type === 'text') as FabricText;
                     if (text.text === this.data[cur % this.data.length].title) {
+                        text.set({fill: 'white'});
                         const rect = children.find(child => child.type === 'rect');
-                        rect?.set({stroke: 'green', strokeWidth: 2});
+                        rect?.set({fill: 'green'});
                     }
                 }
                 this.fabric.renderAll();
-                if (cur === this.data.length * 10 + result ) {
+                if (cur === this.data.length * 5 + result ) {
                     window.clearInterval(this.timer);
                     this.timer = 0;
                     this.finish(result);
@@ -80,7 +109,7 @@ export class Lottery2D {
         const {width} = this.layout;
 
         const center = group.getCenterPoint();
-        const centerGroup  = new Group([], {hoverCursor: 'pointer'});
+        const centerGroup  = new Group([], {selectable: false,hoverCursor: 'pointer'});
         centerGroup.add(new Rect({
             width, height: width,
             fill: 'transparent',
@@ -133,6 +162,8 @@ export class Lottery2D {
         });
         const text = new FabricText(item.title, {
             fill: 'green',
+            fontSize: 16,
+            textAlign: 'center',
         });
         text.set({
             left:  width / 2 - text.width / 2,
@@ -145,8 +176,8 @@ export class Lottery2D {
     renderData() {
         const {col, row, gap, width} = this.layout;
         const groupW = width * col + (col - 1) * gap;
-        const grouH = width * row + (row - 1) * gap;
-        const top = (this.fabric.getHeight() - grouH) / 2;
+        const groupH = width * row + (row - 1) * gap;
+        const top = (this.fabric.getHeight() - groupH) / 2;
         const left = (this.fabric.getWidth() - groupW) / 2;
         const group = new Group([], {selectable: false, subTargetCheck: true});
 
@@ -172,6 +203,8 @@ export class Lottery2D {
         group.set({
             left, top,
         });
+        console.log('group: ', group.left, group.top);
+        this.group = group;
         this.fabric.add(group);
     }
     reset() {

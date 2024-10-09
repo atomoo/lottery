@@ -1,6 +1,6 @@
 'use client';
 
-import {Canvas, Group, Rect, FabricText, util, Point} from 'fabric';
+import {Canvas, Group, Rect, FabricText} from 'fabric';
 import {LotteryItem} from '../type';
 
 export class Lottery2D {

@@ -1,6 +1,6 @@
 'use client';
 
-import {Canvas, Group, Rect, FabricText} from 'fabric';
+import {Canvas, Group, Rect, Textbox} from 'fabric';
 import {LotteryItem} from '../type';
 
 export class Lottery2D {
@@ -46,7 +46,7 @@ export class Lottery2D {
         console.log(this.fabric.getObjects()[0].left, this.fabric.getObjects()[0].top);
         for (const item of this.group.getObjects()) {
             const children = (item as Group).getObjects();
-            const text = children.find(child => child.type === 'text') as FabricText;
+            const text = children.find(child => child.type === 'textbox') as Textbox;
             if (text.text === this.data[resultIndex].title) {
                 (item as Group).clone().then(g => {
                     const {x, y} = this.fabric.getCenterPoint();
@@ -58,7 +58,10 @@ export class Lottery2D {
                     this.fabric.add(g);
                     this.fabric.renderAll();
                     setTimeout(() => {
-                        g.animate({left: x - g.width / 2, top: y - g.width / 2,scaleX: 1, scaleY: 1}, {onChange: this.fabric.renderAll.bind(this.fabric), duration: 1000});
+                        g.animate(
+                            {left: x - g.width / 2, top: y - g.width / 2,scaleX: 1, scaleY: 1},
+                            {onChange: this.fabric.renderAll.bind(this.fabric), duration: 1000}
+                        );
                     }, 0);
                     g.on('mousedown', () => {
                         this.fabric.remove(g);
@@ -77,16 +80,18 @@ export class Lottery2D {
             let cur = 0;
             this.timer = window.setInterval(() => {
                 items.forEach(item => {
-                    const rect = (item as Group).getObjects().find(child => child.type === 'rect');
+                    const rect = (item as Group).getObjects()
+                        .find(child => child.type === 'rect');
                     rect?.set({fill: 'white'});
-                    const text = (item as Group).getObjects().find(child => child.type === 'text') as FabricText;
+                    const text = (item as Group).getObjects()
+                        .find(child => child.type === 'textbox') as Textbox;
                     text.set({fill: 'green'});
                 });
                 // FIXME: 优化
                 for (const item of items) {
 
                     const children = (item as Group).getObjects();
-                    const text = children.find(child => child.type === 'text') as FabricText;
+                    const text = children.find(child => child.type === 'textbox') as Textbox;
                     if (text.text === this.data[cur % this.data.length].title) {
                         text.set({fill: 'white'});
                         const rect = children.find(child => child.type === 'rect');
@@ -119,11 +124,10 @@ export class Lottery2D {
             stroke: 'green',
             strokeWidth: 2,
         }));
-        centerGroup.add(new FabricText('Go', {
+        centerGroup.add(new Textbox('Go', {
             left: center.x - 25,
             top: center.y - 25,
             fill: 'green',
-            fontSize: 50,
             hoverCursor: 'pointer',
             moveCursor: 'pointer',
         }));
@@ -160,10 +164,12 @@ export class Lottery2D {
             rx: 4,
             ry: 4,
         });
-        const text = new FabricText(item.title, {
+        const text = new Textbox(item.title, {
             fill: 'green',
-            fontSize: 16,
+            fontSize: 14,
             textAlign: 'center',
+            splitByGrapheme: true,
+            width,
         });
         text.set({
             left:  width / 2 - text.width / 2,
@@ -180,7 +186,7 @@ export class Lottery2D {
         const top = (this.fabric.getHeight() - groupH) / 2;
         const left = (this.fabric.getWidth() - groupW) / 2;
         const group = new Group([], {selectable: false, subTargetCheck: true});
-
+        console.log(this.fabric.getWidth());
         for (let i = 0; i < row; i++) {
             for (let j = 0; j < col; j++) {
                 if (i > 0 && i < col - 1 && j > 0 && j < row - 1) {
@@ -203,7 +209,7 @@ export class Lottery2D {
         group.set({
             left, top,
         });
-        console.log('group: ', group.left, group.top);
+        console.log('group: ', group, group.top);
         this.group = group;
         this.fabric.add(group);
     }

@@ -45,7 +45,7 @@ export function Lottery2DView() {
 
     return (
         <>
-            <Image hidden unoptimized src={mc} alt='麦麦'  width={450} height={600} id="maimai" />
+            <Image hidden unoptimized priority src={mc} alt='麦麦'  width={450} height={600} id="maimai" />
             <div className="bg-white w-full h-full">
                 <canvas ref={canvasRef}></canvas>
             </div>

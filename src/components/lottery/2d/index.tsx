@@ -1,7 +1,10 @@
 'use client';
 
 import {useLayoutEffect, useRef} from 'react';
+import Image from 'next/image';
+
 import {Lottery2D} from '@/components/lottery/2d/draw';
+import mc from '@/public/images/m.jpeg';
 
 export function Lottery2DView() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -41,8 +44,11 @@ export function Lottery2DView() {
     );
 
     return (
-        <div className="bg-white w-full h-full">
-            <canvas ref={canvasRef}></canvas>
-        </div>
+        <>
+            <Image hidden unoptimized src={mc} alt='麦麦'  width={450} height={600} id="maimai" />
+            <div className="bg-white w-full h-full">
+                <canvas ref={canvasRef}></canvas>
+            </div>
+        </>
     );
 }

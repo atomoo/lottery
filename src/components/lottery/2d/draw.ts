@@ -1,6 +1,6 @@
 'use client';
 
-import {Canvas, Group, Rect, Textbox} from 'fabric';
+import {Canvas, FabricImage, Group, Image, Rect, Textbox} from 'fabric';
 import {LotteryItem} from '../type';
 
 export class Lottery2D {
@@ -16,6 +16,8 @@ export class Lottery2D {
         width: 0,
     };
     timer: number = 0;
+    count = 0;
+    processing = false;
 
     constructor(canvas: HTMLCanvasElement) {
         this.fabric = new Canvas(canvas, {enableRetinaScaling: true, hoverCursor: 'pointer'});
@@ -50,7 +52,6 @@ export class Lottery2D {
             if (text.text === this.data[resultIndex].title) {
                 (item as Group).clone().then(g => {
                     const {x, y} = this.fabric.getCenterPoint();
-                    console.log(item.getCenterPoint(),item.getX());
                     const {x: itemX, y: itemY} = item.getCenterPoint();
                     g.set({left: itemX, top: itemY, fill: 'red', selectable: false});
                     g.scale(0.1);
@@ -63,6 +64,7 @@ export class Lottery2D {
                             {onChange: this.fabric.renderAll.bind(this.fabric), duration: 1000}
                         );
                     }, 0);
+                    this.processing = false;
                     g.on('mousedown', () => {
                         this.fabric.remove(g);
                     });
@@ -73,8 +75,27 @@ export class Lottery2D {
     }
 
     start() {
+        if (this.processing) {
+            return;
+        }
         const g = this.fabric.getObjects().at(0) as Group | undefined;
         if (g) {
+            this.count++;
+            this.processing = true;
+            if (this.count > 3) {
+                const maimai = document.getElementById('maimai') as  HTMLImageElement | null;
+                if (maimai) {
+                    FabricImage.fromURL(maimai.src).then(img => {
+                        if (img) {
+                            const {x, y} = this.fabric.getCenterPoint();
+                            img.set({left: x - img.width / 2, top: y - img.height / 2, subTargetCheck: true, selectable: false});
+                            this.fabric.add(img);
+                            this.fabric.renderAll();
+                        }
+                    }).catch(console.error);
+                }
+                return;
+            }
             const result = Math.floor(Math.random() * this.data.length);
             const items = g.getObjects();
             let cur = 0;
@@ -186,7 +207,6 @@ export class Lottery2D {
         const top = (this.fabric.getHeight() - groupH) / 2;
         const left = (this.fabric.getWidth() - groupW) / 2;
         const group = new Group([], {selectable: false, subTargetCheck: true});
-        console.log(this.fabric.getWidth());
         for (let i = 0; i < row; i++) {
             for (let j = 0; j < col; j++) {
                 if (i > 0 && i < col - 1 && j > 0 && j < row - 1) {
@@ -209,7 +229,6 @@ export class Lottery2D {
         group.set({
             left, top,
         });
-        console.log('group: ', group, group.top);
         this.group = group;
         this.fabric.add(group);
     }

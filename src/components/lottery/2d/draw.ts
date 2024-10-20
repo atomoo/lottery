@@ -12,7 +12,7 @@ export class Lottery2D {
         col: 5,
         row: 5,
         gap: 10,
-        padding: 20,
+        padding: 10,
         width: 0,
     };
     timer: number = 0;
@@ -50,25 +50,37 @@ export class Lottery2D {
             const children = (item as Group).getObjects();
             const text = children.find(child => child.type === 'textbox') as Textbox;
             if (text.text === this.data[resultIndex].title) {
-                (item as Group).clone().then(g => {
-                    const {x, y} = this.fabric.getCenterPoint();
-                    const {x: itemX, y: itemY} = item.getCenterPoint();
-                    g.set({left: itemX, top: itemY, fill: 'red', selectable: false});
-                    g.scale(0.1);
-                    console.log(this.group.left,this.group.top, '||', g.getX(), g.getY(), '||', g.left, g.top);
-                    this.fabric.add(g);
-                    this.fabric.renderAll();
-                    setTimeout(() => {
-                        g.animate(
-                            {left: x - g.width / 2, top: y - g.width / 2,scaleX: 1, scaleY: 1},
-                            {onChange: this.fabric.renderAll.bind(this.fabric), duration: 1000}
-                        );
-                    }, 0);
-                    this.processing = false;
-                    g.on('mousedown', () => {
-                        this.fabric.remove(g);
-                    });
-                }).catch(err => console.log(err));
+                const selected = this.data[resultIndex];
+                const {x, y} = this.fabric.getCenterPoint();
+                const rect = new Rect({width: this.layout.width * 2, height: this.layout.width * 2, rx: 4, ry: 4, fill: 'green'});
+                const title = new Textbox(selected.title, {
+                    left: 0,
+                    top: 10,
+                    width: rect.width,
+                    fontSize: 18,
+                    textAlign: 'center',
+                    splitByGrapheme: true,
+                    fill: 'white',
+                    fontWeight: 'bold',
+                });
+                const tip = new Textbox(selected.tip, {
+                    left: 0,
+                    top: title.height + 20,
+                    width: rect.width,
+                    fontSize: 12,
+                    textAlign: 'center',
+                    splitByGrapheme: true,
+                    fill: '#bbb',
+                });
+                const textGroup = new Group([title, tip], {selectable: false});
+                textGroup.set({top: (this.layout.width * 2 - title.height - tip.height) / 2});
+                const resultItem = new Group([rect, textGroup], {left: x - this.layout.width, top: y - this.layout.width, selectable: false});
+                this.processing = false;
+                resultItem.on('mousedown', () => {
+                    this.fabric.remove(resultItem);
+                });
+                this.fabric.add(resultItem);
+                this.fabric.renderAll();
                 break;
             }
         }
